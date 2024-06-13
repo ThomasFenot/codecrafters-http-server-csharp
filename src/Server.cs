@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection.Metadata;
 using System.Text;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -21,8 +22,9 @@ var socket = server.AcceptSocket();
 socket.Receive(buffer);
 string requestMessage = Encoding.UTF8.GetString(buffer);
 
-string[] result = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-string[] cutResult = result[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+string[] userAgent = request[8].Split(":", StringSplitOptions.RemoveEmptyEntries);
 
 if (cutResult[1].Equals("/"))
 {
@@ -38,9 +40,17 @@ else if (cutResult[1].StartsWith("/echo/"))
 
     response = okResponse + contentType + contentLength + parameter;
 
-    Console.WriteLine(response);
+    socket.Send(Encoding.ASCII.GetBytes(response));
+}
+else if (cutResult[1].Equals("/user-agent"))
+{
+    var contentType = "Content-Type: text/plain\r\n";
+    var contentLength = $"Content-Length: {userAgent[2].Length}\r\n\r\n";
+
+    response = okResponse + contentType + contentLength + userAgent[2];
 
     socket.Send(Encoding.ASCII.GetBytes(response));
+}
 }
 else
 {
