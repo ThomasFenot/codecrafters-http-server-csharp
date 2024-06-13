@@ -42,34 +42,37 @@ headers.ForEach(header => formatedHeaders.Add(
 
 string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
+RouteLogic();
 
-if (cutResult[1].Equals("/"))
-{
-    response = okResponse;
-    socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
-}
-else if (cutResult[1].StartsWith("/echo/"))
-{
-    var parameter = cutResult[1].Split("/")[2];
+void RouteLogic() {
+    if (cutResult[1].Equals("/"))
+    {
+        response = okResponse;
+        socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
+    }
+    else if (cutResult[1].StartsWith("/echo/"))
+    {
+        var parameter = cutResult[1].Split("/")[2];
 
-    var contentType = "Content-Type: text/plain\r\n";
-    var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
+        var contentType = "Content-Type: text/plain\r\n";
+        var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
 
-    response = okResponse + contentType + contentLength + parameter;
+        response = okResponse + contentType + contentLength + parameter;
 
-    socket.Send(Encoding.ASCII.GetBytes(response));
-}
-else if (cutResult[1].Equals("/user-agent"))
-{
-    var contentType = "Content-Type: text/plain\r\n";
-    var contentLength = $"Content-Length: {userAgent.Length}\r\n\r\n";
+        socket.Send(Encoding.ASCII.GetBytes(response));
+    }
+    else if (cutResult[1].Equals("/user-agent"))
+    {
+        var contentType = "Content-Type: text/plain\r\n";
+        var contentLength = $"Content-Length: {userAgent.Length}\r\n\r\n";
 
-    response = okResponse + contentType + contentLength + userAgent;
+        response = okResponse + contentType + contentLength + userAgent;
 
-    socket.Send(Encoding.ASCII.GetBytes(response));
-}
-else
-{
-    response = notFoundResponse;
-    socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
+        socket.Send(Encoding.ASCII.GetBytes(response));
+    }
+    else
+    {
+        response = notFoundResponse;
+        socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
+    }
 }
