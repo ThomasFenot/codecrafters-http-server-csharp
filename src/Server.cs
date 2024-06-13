@@ -51,7 +51,6 @@ else if (cutResult[1].Equals("/user-agent"))
 
     socket.Send(Encoding.ASCII.GetBytes(response));
 }
-}
 else
 {
     response = notFoundResponse;
