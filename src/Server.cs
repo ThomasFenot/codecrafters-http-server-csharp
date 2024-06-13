@@ -27,7 +27,7 @@ string[] cutResult = result[0].Split(" ", StringSplitOptions.RemoveEmptyEntries)
 if (cutResult[1].Equals("/"))
 {
     response = okResponse;
-    socket.Send(Encoding.ASCII.GetBytes(response));
+    socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
 }
 else if (cutResult[1].StartsWith("/echo/"))
 {
@@ -45,5 +45,5 @@ else if (cutResult[1].StartsWith("/echo/"))
 else
 {
     response = notFoundResponse;
-    socket.Send(Encoding.ASCII.GetBytes(response));
+    socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
 }
