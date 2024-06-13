@@ -1,14 +1,13 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
 
 //Status Line
-var okResponse = "HTTP/1.1 200 OK\r\n\r\n";
-var notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
+var okResponse = "HTTP/1.1 200 OK\r\n";
+var notFoundResponse = "HTTP/1.1 404 Not Found\r\n";
 
 var response = "";
 
@@ -23,10 +22,8 @@ socket.Receive(buffer);
 string requestMessage = Encoding.UTF8.GetString(buffer);
 
 string[] result = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-
-Console.WriteLine($"Result : {result[0]}");
-
 string[] cutResult = result[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
 if (cutResult[1].Equals("/"))
 {
     response = okResponse;
@@ -40,6 +37,8 @@ else if (cutResult[1].StartsWith("/echo/"))
     var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
 
     response = okResponse + contentType + contentLength + parameter;
+
+    Console.WriteLine(response);
 
     socket.Send(Encoding.ASCII.GetBytes(response));
 }
