@@ -19,7 +19,7 @@ server.Start();
 byte[] buffer = new byte[1024];
 
 var socket = await server.AcceptSocketAsync();
-socket.ReceiveAsync(buffer);
+await socket.ReceiveAsync(buffer);
 string requestMessage = Encoding.UTF8.GetString(buffer);
 
 string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
@@ -41,13 +41,13 @@ headers.ForEach(header => formatedHeaders.Add(
 
 string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
-RouteLogic();
+await RouteLogic();
 
-void RouteLogic() {
+async Task RouteLogic() {
     if (cutResult[1].Equals("/"))
     {
         response = okResponse;
-        socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
+        await socket.SendAsync(Encoding.ASCII.GetBytes(response + "\r\n"));
     }
     else if (cutResult[1].StartsWith("/echo/"))
     {
@@ -58,7 +58,7 @@ void RouteLogic() {
 
         response = okResponse + contentType + contentLength + parameter;
 
-        socket.Send(Encoding.ASCII.GetBytes(response));
+        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
     }
     else if (cutResult[1].Equals("/user-agent"))
     {
@@ -67,11 +67,11 @@ void RouteLogic() {
 
         response = okResponse + contentType + contentLength + userAgent;
 
-        socket.Send(Encoding.ASCII.GetBytes(response));
+        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
     }
     else
     {
         response = notFoundResponse;
-        socket.Send(Encoding.ASCII.GetBytes(response + "\r\n"));
+        await socket.SendAsync(Encoding.ASCII.GetBytes(response + "\r\n"));
     }
 }
