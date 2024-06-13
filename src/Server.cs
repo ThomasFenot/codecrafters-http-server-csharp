@@ -39,7 +39,7 @@ else if (cutResult[1].StartsWith("/echo/"))
     var contentType = "Content-Type: text/plain\\r\\n";
     var contentLength = $"Content-Length: {parameter.Length}\\r\\n\\r\\n";
 
-    response = okResponse + contentType + contentLength + parameter;
+    response = okResponse + contentType + contentLength + parameter +"\\r\\n";
 
     socket.Send(Encoding.ASCII.GetBytes(response));
 }
