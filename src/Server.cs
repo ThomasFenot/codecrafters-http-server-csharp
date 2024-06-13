@@ -7,8 +7,8 @@ using static System.Net.Mime.MediaTypeNames;
 Console.WriteLine("Logs from your program will appear here!");
 
 //Status Line
-var okResponse = "HTTP/1.1 200 OK\\r\\n\\r\\n";
-var notFoundResponse = "HTTP/1.1 404 Not Found\\r\\n\\r\\n";
+var okResponse = "HTTP/1.1 200 OK\r\n\r\n";
+var notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
 
 var response = "";
 
@@ -36,10 +36,10 @@ else if (cutResult[1].StartsWith("/echo/"))
 {
     var parameter = cutResult[1].Split("/")[2];
 
-    var contentType = "Content-Type: text/plain\\r\\n";
-    var contentLength = $"Content-Length: {parameter.Length}\\r\\n\\r\\n";
+    var contentType = "Content-Type: text/plain\r\n";
+    var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
 
-    response = okResponse + contentType + contentLength + parameter +"\\r\\n";
+    response = okResponse + contentType + contentLength + parameter;
 
     socket.Send(Encoding.ASCII.GetBytes(response));
 }
