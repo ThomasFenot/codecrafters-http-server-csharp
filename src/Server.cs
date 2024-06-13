@@ -16,34 +16,36 @@ var response = "";
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
-byte[] buffer = new byte[1024];
-
-var socket = await server.AcceptSocketAsync();
-await socket.ReceiveAsync(buffer);
-string requestMessage = Encoding.UTF8.GetString(buffer);
-
-string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-List<string> headers = [];
-
-for (int i = 1; i < request.Length - 1; i++)
-{
-    headers.Add(request[i]);
-}
-
-List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
-
-headers.ForEach(header => formatedHeaders.Add(
-    new KeyValuePair<string, string>(
-        header.Split(":")[0],
-        header.Split(":")[1]
-        )
-    ));
-
-string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
 await RouteLogic();
 
-async Task RouteLogic() {
+async Task RouteLogic()
+{
+    byte[] buffer = new byte[1024];
+
+    var socket = await server.AcceptSocketAsync();
+    await socket.ReceiveAsync(buffer);
+    string requestMessage = Encoding.UTF8.GetString(buffer);
+
+    string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+    List<string> headers = [];
+
+    for (int i = 1; i < request.Length - 1; i++)
+    {
+        headers.Add(request[i]);
+    }
+
+    List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
+
+    headers.ForEach(header => formatedHeaders.Add(
+        new KeyValuePair<string, string>(
+            header.Split(":")[0],
+            header.Split(":")[1]
+            )
+        ));
+
+    string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+    string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
+
     if (cutResult[1].Equals("/"))
     {
         response = okResponse;
@@ -57,7 +59,6 @@ async Task RouteLogic() {
         var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
 
         response = okResponse + contentType + contentLength + parameter;
-
         await socket.SendAsync(Encoding.ASCII.GetBytes(response));
     }
     else if (cutResult[1].Equals("/user-agent"))
