@@ -18,8 +18,8 @@ server.Start();
 
 byte[] buffer = new byte[1024];
 
-var socket = server.AcceptSocket();
-socket.Receive(buffer);
+var socket = await server.AcceptSocketAsync();
+socket.ReceiveAsync(buffer);
 string requestMessage = Encoding.UTF8.GetString(buffer);
 
 string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
@@ -38,7 +38,6 @@ headers.ForEach(header => formatedHeaders.Add(
         header.Split(":")[1]
         )
     ));
-
 
 string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
