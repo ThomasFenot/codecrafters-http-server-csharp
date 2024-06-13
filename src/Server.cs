@@ -45,7 +45,7 @@ else if (cutResult[1].StartsWith("/echo/"))
 else if (cutResult[1].Equals("/user-agent"))
 {
     var contentType = "Content-Type: text/plain\r\n";
-    var contentLength = $"Content-Length: {userAgent[2].Length}\r\n\r\n";
+    var contentLength = $"Content-Length: {userAgent[1].Length}\r\n\r\n";
 
     response = okResponse + contentType + contentLength + userAgent[2];
 
