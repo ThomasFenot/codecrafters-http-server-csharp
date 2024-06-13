@@ -6,9 +6,11 @@ using static System.Net.Mime.MediaTypeNames;
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
 
+//Status Line
 var okResponse = "HTTP/1.1 200 OK\r\n\r\n";
 var notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
 
+var response = "";
 
 // Uncomment this block to pass the first stage
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
@@ -27,9 +29,22 @@ Console.WriteLine($"Result : {result[0]}");
 string[] cutResult = result[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 if (cutResult[1].Equals("/"))
 {
-    socket.Send(Encoding.ASCII.GetBytes(okResponse));
+    response = okResponse;
+    socket.Send(Encoding.ASCII.GetBytes(response));
+}
+else if (cutResult[1].StartsWith("/echo/"))
+{
+    var parameter = cutResult[1].Split("/")[2];
+
+    var contentType = "Content-Type: text/plain\r\n";
+    var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
+
+    response = okResponse + contentType + contentLength + parameter;
+
+    socket.Send(Encoding.ASCII.GetBytes(response));
 }
 else
 {
-    socket.Send(Encoding.ASCII.GetBytes(notFoundResponse));
+    response = notFoundResponse;
+    socket.Send(Encoding.ASCII.GetBytes(response));
 }
