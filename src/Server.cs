@@ -23,8 +23,25 @@ socket.Receive(buffer);
 string requestMessage = Encoding.UTF8.GetString(buffer);
 
 string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+List<string> headers = [];
+
+for (int i = 1; i < request.Length - 1; i++)
+{
+    headers.Add(request[i]);
+}
+
+List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
+
+headers.ForEach(header => formatedHeaders.Add(
+    new KeyValuePair<string, string>(
+        header.Split(":")[0],
+        header.Split(":")[1]
+        )
+    ));
+
+
 string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-string[] userAgent = request[8].Split(":", StringSplitOptions.RemoveEmptyEntries);
+string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
 
 if (cutResult[1].Equals("/"))
 {
@@ -45,9 +62,9 @@ else if (cutResult[1].StartsWith("/echo/"))
 else if (cutResult[1].Equals("/user-agent"))
 {
     var contentType = "Content-Type: text/plain\r\n";
-    var contentLength = $"Content-Length: {userAgent[1].Length}\r\n\r\n";
+    var contentLength = $"Content-Length: {userAgent.Length}\r\n\r\n";
 
-    response = okResponse + contentType + contentLength + userAgent[1];
+    response = okResponse + contentType + contentLength + userAgent;
 
     socket.Send(Encoding.ASCII.GetBytes(response));
 }
