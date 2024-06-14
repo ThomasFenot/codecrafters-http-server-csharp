@@ -5,8 +5,8 @@ using System.Text;
 const string CRLF = "\r\n";
 
 //Status Line
-const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}{CRLF}";
-const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}{CRLF}";
+const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
+const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
 const string CONTENT_TYPE = $"Content-Type: text/plain{CRLF}";
 
 // Uncomment this block to pass the first stage
@@ -56,7 +56,7 @@ async Task HandleRequest()
     string userAgent = formatedHeaders.FirstOrDefault(header => header.Key == "User-Agent").Value?.Trim();
 
     if (path.Equals("/"))
-        response = OK_RESPONSE;
+        response = OK_RESPONSE + CRLF;
     else if (path.StartsWith("/echo/"))
     {
         var parameter = path.Split("/")[2];
@@ -69,7 +69,7 @@ async Task HandleRequest()
         response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
     }
     else
-        response = NOT_FOUND_RESPONSE;
+        response = NOT_FOUND_RESPONSE + CRLF;
 
     await socket.SendAsync(Encoding.ASCII.GetBytes(response));
 }
