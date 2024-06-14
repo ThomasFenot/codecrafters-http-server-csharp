@@ -56,28 +56,20 @@ async Task HandleRequest()
     string userAgent = formatedHeaders.FirstOrDefault(header => header.Key == "User-Agent").Value?.Trim();
 
     if (path.Equals("/"))
-    {
         response = OK_RESPONSE;
-    }
     else if (path.StartsWith("/echo/"))
     {
         var parameter = path.Split("/")[2];
-
         var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
-
         response = OK_RESPONSE + CONTENT_TYPE + contentLength + parameter;
     }
     else if (path.Equals("/user-agent"))
     {
         var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-
         response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
     }
     else
-    {
         response = NOT_FOUND_RESPONSE;
-    }
 
     await socket.SendAsync(Encoding.ASCII.GetBytes(response));
-
 }
