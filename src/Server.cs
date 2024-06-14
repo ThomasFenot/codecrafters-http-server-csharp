@@ -2,36 +2,47 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-Console.WriteLine("Logs from your program will appear here!");
+const string CRLF = "\r\n";
 
 //Status Line
-var okResponse = "HTTP/1.1 200 OK\r\n";
-var notFoundResponse = "HTTP/1.1 404 Not Found\r\n";
-
-var response = "";
+const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}{CRLF}";
+const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}{CRLF}";
+const string CONTENT_TYPE = $"Content-Type: text/plain{CRLF}";
 
 // Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 4221);
+using TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
-await RouteLogic();
-
-async Task RouteLogic()
+while (true)
 {
+    await HandleRequest();
+}
+
+async Task HandleRequest()
+{
+    string response;
+
     byte[] buffer = new byte[1024];
 
-    var socket = await server.AcceptSocketAsync();
+    string verb;
+    string path;
+    string httpVersion;
+
+    using var socket = await server.AcceptSocketAsync();
     await socket.ReceiveAsync(buffer);
     string requestMessage = Encoding.UTF8.GetString(buffer);
 
-    string[] request = requestMessage.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+    string[] request = requestMessage.Split(CRLF, StringSplitOptions.RemoveEmptyEntries);
+    string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+    verb = cutRequest[0];
+    path = cutRequest[1];
+    httpVersion = cutRequest[2];
+
     List<string> headers = [];
 
     for (int i = 1; i < request.Length - 1; i++)
-    {
         headers.Add(request[i]);
-    }
 
     List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
 
@@ -42,36 +53,31 @@ async Task RouteLogic()
             )
         ));
 
-    string[] cutResult = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-    string userAgent = formatedHeaders.Where(header => header.Key == "User-Agent").Select(header => header.Value.Trim()).FirstOrDefault();
+    string userAgent = formatedHeaders.FirstOrDefault(header => header.Key == "User-Agent").Value?.Trim();
 
-    if (cutResult[1].Equals("/"))
+    if (path.Equals("/"))
     {
-        response = okResponse;
-        await socket.SendAsync(Encoding.ASCII.GetBytes(response + "\r\n"));
+        response = OK_RESPONSE;
     }
-    else if (cutResult[1].StartsWith("/echo/"))
+    else if (path.StartsWith("/echo/"))
     {
-        var parameter = cutResult[1].Split("/")[2];
+        var parameter = path.Split("/")[2];
 
-        var contentType = "Content-Type: text/plain\r\n";
-        var contentLength = $"Content-Length: {parameter.Length}\r\n\r\n";
+        var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
 
-        response = okResponse + contentType + contentLength + parameter;
-        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+        response = OK_RESPONSE + CONTENT_TYPE + contentLength + parameter;
     }
-    else if (cutResult[1].Equals("/user-agent"))
+    else if (path.Equals("/user-agent"))
     {
-        var contentType = "Content-Type: text/plain\r\n";
-        var contentLength = $"Content-Length: {userAgent.Length}\r\n\r\n";
+        var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
 
-        response = okResponse + contentType + contentLength + userAgent;
-
-        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+        response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
     }
     else
     {
-        response = notFoundResponse;
-        await socket.SendAsync(Encoding.ASCII.GetBytes(response + "\r\n"));
+        response = NOT_FOUND_RESPONSE;
     }
+
+    await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+
 }
