@@ -5,8 +5,8 @@ using System.Text;
 const string CRLF = "\r\n";
 
 //Status Line
-const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}{CRLF}";
-const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}{CRLF}";
+const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
+const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
 const string CONTENT_TYPE = $"Content-Type: text/plain{CRLF}";
 
 // Uncomment this block to pass the first stage
@@ -66,7 +66,7 @@ async Task HandleRequest()
     else if (path.Equals("/user-agent"))
     {
         var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CRLF + CONTENT_TYPE + contentLength + userAgent;
+        response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
     }
     else
         response = NOT_FOUND_RESPONSE;
