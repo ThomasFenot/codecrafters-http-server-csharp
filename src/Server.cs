@@ -66,7 +66,7 @@ async Task HandleRequest()
     else if (path.Equals("/user-agent"))
     {
         var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
+        response = OK_RESPONSE + CRLF + CONTENT_TYPE + contentLength + userAgent;
     }
     else
         response = NOT_FOUND_RESPONSE;
