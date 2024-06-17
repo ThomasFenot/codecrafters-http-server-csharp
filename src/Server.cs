@@ -83,15 +83,11 @@ internal class Program
                     goto Send;
                 }
 
-                string readContents;
-                using (StreamReader streamReader = new StreamReader(path, Encoding.UTF8))
-                {
-                    readContents = streamReader.ReadToEnd();
-                }
+                string contents = File.ReadAllText(filePath);
 
                 var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
 
-                response = OK_RESPONSE + CONTENT_TYPE_FILE + readContents.Length + readContents;
+                response = OK_RESPONSE + CONTENT_TYPE_FILE + contents.Length + contents;
             }
             else if (path.Equals("/user-agent"))
             {
