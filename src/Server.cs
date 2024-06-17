@@ -74,10 +74,11 @@ internal class Program
             {
                 var parameter = path.Split("/", 3)[2]; //Here it should be a file name
 
-                var filePath = Environment.GetCommandLineArgs()[2];
-                FileInfo file = new(parameter);
+                var filePath = Environment.GetCommandLineArgs()[2] + parameter;
+                FileInfo file = new(filePath);
 
-                Console.Error.WriteLine($"LOGS HERE : {file.Exists} ");
+                Console.Error.WriteLine($"FILE PATH : {file.Exists} ");
+                Console.Error.WriteLine($"EXISTS ? : {file.Exists} ");
 
                 if (!file.Exists)
                 {
