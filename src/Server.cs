@@ -1,106 +1,107 @@
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
 
-const string CRLF = "\r\n";
+namespace codecrafters_http_server;
 
-//Status Line
-const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
-const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
-const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
-const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
-
-
-
-
-// Uncomment this block to pass the first stage
-using TcpListener server = new TcpListener(IPAddress.Any, 4221);
-server.Start();
-
-while (true)
+internal class Program
 {
-    await HandleRequest().ConfigureAwait(false);
-}
-
-async Task HandleRequest()
-{
-    string response;
-
-    byte[] buffer = new byte[1024];
-
-    string verb;
-    string path;
-    string httpVersion;
-
-    using var socket = await server.AcceptSocketAsync();
-    await socket.ReceiveAsync(buffer);
-    string requestMessage = Encoding.UTF8.GetString(buffer);
-
-    string[] request = requestMessage.Split(CRLF, StringSplitOptions.RemoveEmptyEntries);
-    string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-    verb = cutRequest[0];
-    path = cutRequest[1];
-    httpVersion = cutRequest[2];
-
-    List<string> headers = [];
-
-    for (int i = 1; i < request.Length - 1; i++)
-        headers.Add(request[i]);
-
-    List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
-
-    headers.ForEach(header => formatedHeaders.Add(
-        new KeyValuePair<string, string>(
-            header.Split(":")[0],
-            header.Split(":")[1]
-            )
-        ));
-
-    string userAgent = FindHeader(formatedHeaders, "User-Agent");
-
-    if (path.Equals("/"))
-        response = OK_RESPONSE + CRLF;
-    else if (path.StartsWith("/echo/"))
+    private static async Task Main(string[] args)
     {
-        var parameter = path.Split("/")[2];
-        var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter;
-    }
-    else if (path.StartsWith("/files/"))
-    {
-        var parameter = path.Split("/", 3)[2]; //Here it should be a file name
+        const string CRLF = "\r\n";
 
-        FileInfo file = new(parameter);
+        //Status Line
+        const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
+        const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
+        const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
+        const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
 
-        Console.Error.WriteLine($"File informations Path : {file.FullName}" );
-        var argv = Environment.GetCommandLineArgs();
-        Console.Error.WriteLine($"Assembly Path : {argv[0]}");
+        // Uncomment this block to pass the first stage
+        using TcpListener server = new TcpListener(IPAddress.Any, 4221);
+        server.Start();
 
-        
-
-        if (!file.Exists)
+        while (true)
         {
-            response = NOT_FOUND_RESPONSE + CRLF;
-            goto Send;
+            await HandleRequest().ConfigureAwait(false);
         }
 
-        var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
+        async Task HandleRequest()
+        {
+            string response;
 
-        response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + parameter;
-    }
-    else if (path.Equals("/user-agent"))
-    {
-        var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
-    }
-    else
-        response = NOT_FOUND_RESPONSE + CRLF;
+            byte[] buffer = new byte[1024];
 
-    Send:
-        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+            string verb;
+            string path;
+            string httpVersion;
+
+            using var socket = await server.AcceptSocketAsync();
+            await socket.ReceiveAsync(buffer);
+            string requestMessage = Encoding.UTF8.GetString(buffer);
+
+            string[] request = requestMessage.Split(CRLF, StringSplitOptions.RemoveEmptyEntries);
+            string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+            verb = cutRequest[0];
+            path = cutRequest[1];
+            httpVersion = cutRequest[2];
+
+            List<string> headers = [];
+
+            for (int i = 1; i < request.Length - 1; i++)
+                headers.Add(request[i]);
+
+            List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
+
+            headers.ForEach(header => formatedHeaders.Add(
+                new KeyValuePair<string, string>(
+                    header.Split(":")[0],
+                    header.Split(":")[1]
+                    )
+                ));
+
+            string userAgent = FindHeader(formatedHeaders, "User-Agent");
+
+            if (path.Equals("/"))
+                response = OK_RESPONSE + CRLF;
+            else if (path.StartsWith("/echo/"))
+            {
+                var parameter = path.Split("/")[2];
+                var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
+                response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter;
+            }
+            else if (path.StartsWith("/files/"))
+            {
+                var parameter = path.Split("/", 3)[2]; //Here it should be a file name
+
+                FileInfo file = new(parameter);
+
+                Console.Error.WriteLine($"File informations Path : {file.FullName}");
+                var argv = Environment.GetCommandLineArgs();
+                Console.Error.WriteLine($"Assembly Path : {argv[2]}");
+
+                if (!file.Exists)
+                {
+                    response = NOT_FOUND_RESPONSE + CRLF;
+                    goto Send;
+                }
+
+                var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
+
+                response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + parameter;
+            }
+            else if (path.Equals("/user-agent"))
+            {
+                var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
+                response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
+            }
+            else
+                response = NOT_FOUND_RESPONSE + CRLF;
+
+            Send:
+            await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+        }
+
+        string FindHeader(List<KeyValuePair<string, string>> formatedHeaders, string name) => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
+    }
 }
-
-string FindHeader(List<KeyValuePair<string, string>> formatedHeaders, string name) => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
