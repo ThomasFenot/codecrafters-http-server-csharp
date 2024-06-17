@@ -83,13 +83,15 @@ internal class Program
                     goto Send;
                 }
 
-                string contents = File.ReadAllText(filePath) + CRLF;
+                string contents = File.ReadAllText(filePath);
 
                 Console.Error.WriteLine($"THIS IS THE CONTENT OF THE FILE : {contents}");
 
                 var contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
 
-                response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents.Trim();
+                contents = contents.Trim() + CRLF;
+
+                response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents;
             }
             else if (path.Equals("/user-agent"))
             {
