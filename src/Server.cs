@@ -85,6 +85,8 @@ internal class Program
 
                 string contents = File.ReadAllText(filePath) + CRLF;
 
+                Console.Error.WriteLine($"THIS IS THE CONTENT OF THE FILE : {contents}");
+
                 var contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
 
                 response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents.Trim();
