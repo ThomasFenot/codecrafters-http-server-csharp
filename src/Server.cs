@@ -1,13 +1,20 @@
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 
 const string CRLF = "\r\n";
+const string TXT_EXTENSION = ".txt";
 
 //Status Line
 const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
 const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
-const string CONTENT_TYPE = $"Content-Type: text/plain{CRLF}";
+const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
+const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
+
+
+
 
 // Uncomment this block to pass the first stage
 using TcpListener server = new TcpListener(IPAddress.Any, 4221);
@@ -61,15 +68,45 @@ async Task HandleRequest()
     {
         var parameter = path.Split("/")[2];
         var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CONTENT_TYPE + contentLength + parameter;
+        response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter;
+    }
+    else if (path.StartsWith("/files/"))
+    {
+        var parameter = path.Split("/", 3)[2]; //Here it should be a file name
+
+        FileInfo file = new FileInfo(parameter);
+
+        if (!file.Exists)
+        {
+            response = NOT_FOUND_RESPONSE + CRLF;
+            goto Send;
+        }
+        //try
+        //{
+        //    using (StreamReader streamReader = new StreamReader(parameter, Encoding.UTF8))
+        //    {
+        //        readContents = streamReader.ReadToEnd();
+        //        fileSize = Encoding.ASCII.GetBytes(readContents);
+        //    }
+        //}
+        //catch (FileNotFoundException)
+        //{
+        //    response = NOT_FOUND_RESPONSE + CRLF;
+        //    goto Send;
+        //}
+
+        var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
+
+        response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + parameter;
     }
     else if (path.Equals("/user-agent"))
     {
         var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-        response = OK_RESPONSE + CONTENT_TYPE + contentLength + userAgent;
+        response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
     }
     else
         response = NOT_FOUND_RESPONSE + CRLF;
 
-    await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+    Send:
+        await socket.SendAsync(Encoding.ASCII.GetBytes(response));
 }
