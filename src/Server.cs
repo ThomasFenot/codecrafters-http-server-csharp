@@ -83,7 +83,7 @@ internal class Program
                     goto Send;
                 }
 
-                string contents = File.ReadAllText(filePath);
+                string contents = File.ReadAllText(filePath) + CRLF;
 
                 var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
 
