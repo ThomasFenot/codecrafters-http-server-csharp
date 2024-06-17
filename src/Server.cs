@@ -75,7 +75,7 @@ async Task HandleRequest()
 
         FileInfo file = new(parameter);
 
-        Console.Error.WriteLine($"File informations Path : {file.FullName}" )
+        Console.Error.WriteLine($"File informations Path : {file.FullName}");
         Console.Error.WriteLine($"Assembly Path : {System.Reflection.Assembly.GetExecutingAssembly().Location}");
 
         
