@@ -77,18 +77,21 @@ internal class Program
                 var filePath = Environment.GetCommandLineArgs()[2] + parameter;
                 FileInfo file = new(filePath);
 
-                Console.Error.WriteLine($"FILE PATH : {filePath} ");
-                Console.Error.WriteLine($"EXISTS ? : {file.Exists} ");
-
                 if (!file.Exists)
                 {
                     response = NOT_FOUND_RESPONSE + CRLF;
                     goto Send;
                 }
 
+                string readContents;
+                using (StreamReader streamReader = new StreamReader(path, Encoding.UTF8))
+                {
+                    readContents = streamReader.ReadToEnd();
+                }
+
                 var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
 
-                response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + parameter;
+                response = OK_RESPONSE + CONTENT_TYPE_FILE + readContents.Length + readContents;
             }
             else if (path.Equals("/user-agent"))
             {
