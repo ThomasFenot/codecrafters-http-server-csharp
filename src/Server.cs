@@ -77,7 +77,7 @@ internal class Program
                 var filePath = Environment.GetCommandLineArgs()[2] + parameter;
                 FileInfo file = new(filePath);
 
-                Console.Error.WriteLine($"FILE PATH : {file.Exists} ");
+                Console.Error.WriteLine($"FILE PATH : {filePath} ");
                 Console.Error.WriteLine($"EXISTS ? : {file.Exists} ");
 
                 if (!file.Exists)
