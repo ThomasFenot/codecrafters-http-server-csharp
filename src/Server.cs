@@ -88,6 +88,7 @@ internal class Program
                 var contentLength = $"Content-Length: {file.Length}{CRLF}{CRLF}";
 
                 response = OK_RESPONSE + CONTENT_TYPE_FILE + contents.Length + contents;
+                Console.Error.WriteLine("RESPONSE : " + response);
             }
             else if (path.Equals("/user-agent"))
             {
