@@ -77,7 +77,7 @@ async Task HandleRequest()
 
         Console.Error.WriteLine($"File informations Path : {file.FullName}" );
         var argv = Environment.GetCommandLineArgs();
-        Console.Error.WriteLine($"Assembly Path : {argv}");
+        Console.Error.WriteLine($"Assembly Path : {argv[0]}");
 
         
 
