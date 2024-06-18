@@ -42,8 +42,8 @@ internal class Program
             // Convert received bytes to a string, removing null bytes
             string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
 
-            string[] request = requestMessage.Split(CRLF, StringSplitOptions.RemoveEmptyEntries);
-            string[] cutRequest = request[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] request = requestMessage.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             verb = cutRequest[0];
             route = cutRequest[1];
