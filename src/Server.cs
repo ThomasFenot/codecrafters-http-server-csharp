@@ -40,7 +40,7 @@ internal class Program
             int bytesRead = await socket.ReceiveAsync(buffer);
 
             // Convert received bytes to a string, removing null bytes
-            string requestMessage = Encoding.ASCII.GetString(buffer)/*.Replace("\0", "")*/;
+            string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
 
             string[] request = requestMessage.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -98,7 +98,7 @@ internal class Program
                     case "POST":
 
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
-                        var body = request[request.Length];
+                        var body = request[request.Length -1];
                         FileInfo file = new(fileName);
 
                         if (!file.Exists)
