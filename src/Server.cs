@@ -117,8 +117,8 @@ internal class Program
                         var path = Environment.GetCommandLineArgs()[2];
                         var filePath = path + fileName; // ENABLE WHEN PROD
 
-                        FileInfo file = new(filePath);
-                        if (!file.Exists)
+                        FileInfo fileWithPath = new(filePath);
+                        if (!fileWithPath.Exists)
                         {
                             response = NOT_FOUND_RESPONSE + CRLF;
                             goto Send;
