@@ -65,7 +65,7 @@ internal class Program
 
             headers.ForEach(header =>
             {
-                if (!string.IsNullOrEmpty(header))
+                if (!string.IsNullOrWhiteSpace(header))
                 {
                     formatedHeaders.Add(
                     new KeyValuePair<string, string>(
@@ -90,7 +90,7 @@ internal class Program
             {
                 var fileName = route.Split("/", 3)[2]; //Here it should be a file name
                 var path = Environment.GetCommandLineArgs()[2];
-                var filePath = path + fileName; // ENABLE WHEN TESTING
+                var filePath = path + fileName; // ENABLE WHEN PROD
 
                 FileInfo file = new(filePath);
 
@@ -111,7 +111,6 @@ internal class Program
 
                         if (!file.Exists)
                         {
-
                             using (FileStream stream = file.Create())
                             {
                                 AddText(stream, body);
@@ -122,7 +121,6 @@ internal class Program
 
                         break;
                     case "GET":
-
                         if (!file.Exists)
                         {
                             response = NOT_FOUND_RESPONSE + CRLF;
