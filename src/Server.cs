@@ -56,6 +56,13 @@ internal class Program
 
             List<KeyValuePair<string, string>> formatedHeaders = [];
 
+            Console.Error.WriteLine("");
+
+            foreach (var header in headers)
+            {
+                Console.Error.WriteLine($"Header is : {header}");
+            }
+
             headers.ForEach(header => formatedHeaders.Add(
                 new KeyValuePair<string, string>(
                     header.Split(":")[0],
