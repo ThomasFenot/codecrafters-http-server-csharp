@@ -40,7 +40,7 @@ internal class Program
             int bytesRead = await socket.ReceiveAsync(buffer);
 
             // Convert received bytes to a string, removing null bytes
-            string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
+            //string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
 
             string[] request = requestMessage.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
