@@ -12,6 +12,7 @@ internal class Program
 
         //Status Line
         const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
+        const string CREATED_RESPONSE = $"HTTP/1.1 201 Created{CRLF}";
         const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
         const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
         const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
@@ -36,11 +37,13 @@ internal class Program
             string httpVersion;
 
             using var socket = await server.AcceptSocketAsync();
-            await socket.ReceiveAsync(buffer);
-            string requestMessage = Encoding.UTF8.GetString(buffer);
+            int bytesRead = await socket.ReceiveAsync(buffer);
 
-            string[] request = requestMessage.Split(CRLF, StringSplitOptions.RemoveEmptyEntries);
-            string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            // Convert received bytes to a string, removing null bytes
+            string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
+
+            string[] request = requestMessage.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] cutRequest = request[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             verb = cutRequest[0];
             path = cutRequest[1];
@@ -72,26 +75,48 @@ internal class Program
             }
             else if (path.StartsWith("/files/"))
             {
-                var parameter = path.Split("/", 3)[2]; //Here it should be a file name
+                var fileName = path.Split("/", 3)[2]; //Here it should be a file name
 
-                var filePath = Environment.GetCommandLineArgs()[2] + parameter;
-                FileInfo file = new(filePath);
+                //var filePath = Environment.GetCommandLineArgs()[2] + fileName; // ENABLE WHEN TESTING
+                var filePath = "/test/debug/" + fileName; // ENABLE WHEN TESTING
 
-                if (!file.Exists)
+                string contentLength;
+
+                switch (verb)
                 {
-                    response = NOT_FOUND_RESPONSE + CRLF;
-                    goto Send;
+                    case "POST":
+
+                        response = CREATED_RESPONSE + CRLF;
+                        contentLength = FindHeader(formatedHeaders, "Content-Length");
+
+                        var requestBody = request[request.Length - 1].Split('\\')[0];
+                        //var xd = request[request.Length - 1].Split('\');
+
+                        break;
+                    case "GET":
+                        FileInfo file = new(filePath);
+
+                        if (!file.Exists)
+                        {
+                            response = NOT_FOUND_RESPONSE + CRLF;
+                            goto Send;
+                        }
+
+                        string contents = File.ReadAllText(filePath);
+
+                        Console.Error.WriteLine($"THIS IS THE CONTENT OF THE FILE : {contents}");
+
+                        contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
+
+                        contents = contents.Trim() + CRLF;
+
+                        response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents;
+
+                        break;
+                    default:
+                        response = NOT_FOUND_RESPONSE + CRLF;
+                        goto Send;
                 }
-
-                string contents = File.ReadAllText(filePath);
-
-                Console.Error.WriteLine($"THIS IS THE CONTENT OF THE FILE : {contents}");
-
-                var contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
-
-                contents = contents.Trim() + CRLF;
-
-                response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents;
             }
             else if (path.Equals("/user-agent"))
             {
