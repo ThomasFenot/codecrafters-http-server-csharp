@@ -53,7 +53,7 @@ internal class Program
 
             for (int i = 1; i < request.Length - 1; i++)
             {
-                if (!string.IsNullOrWhiteSpace(request[i]) || !request[i].Contains(string.Empty))
+                if (!string.IsNullOrWhiteSpace(request[i]))
                     headers.Add(request[i]);
             }
 
@@ -63,7 +63,7 @@ internal class Program
             {
                 Console.Error.WriteLine($"Header is : {header}");
 
-                if (!string.IsNullOrWhiteSpace(header) || !header.Contains(string.Empty))
+                if (!string.IsNullOrWhiteSpace(header))
                 {
                     formatedHeaders.Add(
                     new KeyValuePair<string, string>(
@@ -87,10 +87,7 @@ internal class Program
             else if (route.StartsWith("/files/"))
             {
                 var fileName = route.Split("/", 3)[2]; //Here it should be a file name
-                var path = Environment.GetCommandLineArgs()[2];
-                var filePath = path + fileName; // ENABLE WHEN PROD
-
-                FileInfo file = new(filePath);
+               
 
                 //var filePath = "/test/debug/" + fileName; // ENABLE WHEN TESTING
 
@@ -101,11 +98,8 @@ internal class Program
                     case "POST":
 
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
-                        DirectoryInfo directory = new(path);
                         var body = request[request.Length];
-
-                        if (!directory.Exists)
-                            directory.Create();
+                        FileInfo file = new(fileName);
 
                         if (!file.Exists)
                         {
@@ -119,6 +113,11 @@ internal class Program
 
                         break;
                     case "GET":
+
+                        var path = Environment.GetCommandLineArgs()[2];
+                        var filePath = path + fileName; // ENABLE WHEN PROD
+
+                        FileInfo file = new(filePath);
                         if (!file.Exists)
                         {
                             response = NOT_FOUND_RESPONSE + CRLF;
