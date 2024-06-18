@@ -63,12 +63,18 @@ internal class Program
                 Console.Error.WriteLine($"Header is : {header}");
             }
 
-            headers.ForEach(header => formatedHeaders.Add(
-                new KeyValuePair<string, string>(
-                    header.Split(":")[0],
-                    header.Split(":")[1]
-                    )
-                ));
+            headers.ForEach(header =>
+            {
+                if (!string.IsNullOrEmpty(header))
+                {
+                    formatedHeaders.Add(
+                    new KeyValuePair<string, string>(
+                        header.Split(":")[0],
+                        header.Split(":")[1]
+                        )
+                    );
+                }
+            });
 
             string userAgent = FindHeader(formatedHeaders, "User-Agent");
 
