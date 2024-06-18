@@ -88,9 +88,6 @@ internal class Program
             {
                 var fileName = route.Split("/", 3)[2]; //Here it should be a file name
                
-
-                //var filePath = "/test/debug/" + fileName; // ENABLE WHEN TESTING
-
                 string contentLength;
 
                 switch (verb)
@@ -100,6 +97,9 @@ internal class Program
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
                         var body = request[request.Length -1];
                         FileInfo file = new(fileName);
+
+                        var xd = Environment.GetCommandLineArgs()[2];
+                        Console.Error.WriteLine("PATH : " + xd);
 
                         if (!file.Exists)
                         {
@@ -125,8 +125,6 @@ internal class Program
                         }
 
                         string contents = File.ReadAllText(filePath);
-
-                        Console.Error.WriteLine($"THIS IS THE CONTENT OF THE FILE : {contents}");
 
                         contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
 
