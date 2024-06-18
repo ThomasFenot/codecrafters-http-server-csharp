@@ -2,12 +2,21 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace codecrafters_http_server.src;
+namespace codecrafters_http_server;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
+        const string CRLF = "\r\n";
+
+        //Status Line
+        const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
+        const string CREATED_RESPONSE = $"HTTP/1.1 201 Created{CRLF}";
+        const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
+        const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
+        const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
+
         // Uncomment this block to pass the first stage
         using TcpListener server = new TcpListener(IPAddress.Any, 4221);
         server.Start();
@@ -68,12 +77,12 @@ internal class Program
             string userAgent = FindHeader(formatedHeaders, "User-Agent");
 
             if (route.Equals("/"))
-                response = Constants.OK_RESPONSE + Constants.CRLF;
+                response = OK_RESPONSE + CRLF;
             else if (route.StartsWith("/echo/"))
             {
                 var parameter = route.Split("/")[2];
-                var contentLength = $"Content-Length: {parameter.Length}{Constants.CRLF}{Constants.CRLF}";
-                response = Constants.OK_RESPONSE + Constants.CONTENT_TYPE_TEXT + contentLength + parameter;
+                var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
+                response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter;
             }
             else if (route.StartsWith("/files/"))
             {
@@ -90,7 +99,7 @@ internal class Program
                     case "POST":
 
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
-                        var body = request[^1];
+                        var body = request[request.Length -1];
 
                         if (!directory.Exists)
                             directory.Create();
@@ -103,7 +112,7 @@ internal class Program
                             }
                         }
 
-                        response = Constants.CREATED_RESPONSE + Constants.CRLF;
+                        response = CREATED_RESPONSE + CRLF;
 
                         break;
                     case "GET":
@@ -111,35 +120,38 @@ internal class Program
                         FileInfo fileWithPath = new(filePath);
                         if (!fileWithPath.Exists)
                         {
-                            response = Constants.NOT_FOUND_RESPONSE + Constants.CRLF;
+                            response = NOT_FOUND_RESPONSE + CRLF;
                             goto Send;
                         }
 
                         string contents = File.ReadAllText(filePath);
 
-                        contentLength = $"Content-Length: {contents.Length}{Constants.CRLF}{Constants.CRLF}";
+                        contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
 
-                        contents = contents.Trim() + Constants.CRLF;
+                        contents = contents.Trim() + CRLF;
 
-                        response = Constants.OK_RESPONSE + Constants.CONTENT_TYPE_FILE + contentLength + contents;
+                        response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents;
 
                         break;
                     default:
-                        response = Constants.NOT_FOUND_RESPONSE + Constants.CRLF;
+                        response = NOT_FOUND_RESPONSE + CRLF;
                         goto Send;
                 }
             }
             else if (route.Equals("/user-agent"))
             {
-                var contentLength = $"Content-Length: {userAgent.Length}{Constants.CRLF}{Constants.CRLF}";
-                response = Constants.OK_RESPONSE + Constants.CONTENT_TYPE_TEXT + contentLength + userAgent;
+                var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
+                response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
             }
             else
-                response = Constants.NOT_FOUND_RESPONSE + Constants.CRLF;
+                response = NOT_FOUND_RESPONSE + CRLF;
 
             Send:
             await socket.SendAsync(Encoding.ASCII.GetBytes(response));
         }
+
+
+        string FindHeader(List<KeyValuePair<string, string>> formatedHeaders, string name) => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
     }
 
     private static void AddText(FileStream fs, string value)
@@ -147,5 +159,4 @@ internal class Program
         byte[] info = new UTF8Encoding(true).GetBytes(value);
         fs.Write(info, 0, info.Length);
     }
-    private static string FindHeader(List<KeyValuePair<string, string>> formatedHeaders, string name) => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
 }
