@@ -33,7 +33,7 @@ internal class Program
             byte[] buffer = new byte[1024];
 
             string verb;
-            string path;
+            string route;
             string httpVersion;
 
             using var socket = await server.AcceptSocketAsync();
@@ -46,7 +46,7 @@ internal class Program
             string[] cutRequest = request[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             verb = cutRequest[0];
-            path = cutRequest[1];
+            route = cutRequest[1];
             httpVersion = cutRequest[2];
 
             List<string> headers = [];
@@ -54,7 +54,7 @@ internal class Program
             for (int i = 1; i < request.Length - 1; i++)
                 headers.Add(request[i]);
 
-            List<KeyValuePair<string, string>> formatedHeaders = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> formatedHeaders = [];
 
             headers.ForEach(header => formatedHeaders.Add(
                 new KeyValuePair<string, string>(
@@ -65,20 +65,23 @@ internal class Program
 
             string userAgent = FindHeader(formatedHeaders, "User-Agent");
 
-            if (path.Equals("/"))
+            if (route.Equals("/"))
                 response = OK_RESPONSE + CRLF;
-            else if (path.StartsWith("/echo/"))
+            else if (route.StartsWith("/echo/"))
             {
-                var parameter = path.Split("/")[2];
+                var parameter = route.Split("/")[2];
                 var contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
                 response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter;
             }
-            else if (path.StartsWith("/files/"))
+            else if (route.StartsWith("/files/"))
             {
-                var fileName = path.Split("/", 3)[2]; //Here it should be a file name
+                var fileName = route.Split("/", 3)[2]; //Here it should be a file name
+                var path = Environment.GetCommandLineArgs()[2];
+                var filePath = path + fileName; // ENABLE WHEN TESTING
 
-                //var filePath = Environment.GetCommandLineArgs()[2] + fileName; // ENABLE WHEN TESTING
-                var filePath = "/test/debug/" + fileName; // ENABLE WHEN TESTING
+                FileInfo file = new(filePath);
+
+                //var filePath = "/test/debug/" + fileName; // ENABLE WHEN TESTING
 
                 string contentLength;
 
@@ -86,15 +89,26 @@ internal class Program
                 {
                     case "POST":
 
-                        response = CREATED_RESPONSE + CRLF;
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
+                        DirectoryInfo directory = new(path);
+                        var body = request[request.Length];
 
-                        var requestBody = request[request.Length - 1].Split('\\')[0];
-                        //var xd = request[request.Length - 1].Split('\');
+                        if (!directory.Exists)
+                            directory.Create();
+
+                        if (!file.Exists)
+                        {
+
+                            using (FileStream stream = file.Create())
+                            {
+                                AddText(stream, body);
+                            }
+                        }
+
+                        response = CREATED_RESPONSE + CRLF;
 
                         break;
                     case "GET":
-                        FileInfo file = new(filePath);
 
                         if (!file.Exists)
                         {
@@ -118,7 +132,7 @@ internal class Program
                         goto Send;
                 }
             }
-            else if (path.Equals("/user-agent"))
+            else if (route.Equals("/user-agent"))
             {
                 var contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
                 response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
@@ -130,6 +144,13 @@ internal class Program
             await socket.SendAsync(Encoding.ASCII.GetBytes(response));
         }
 
+
         string FindHeader(List<KeyValuePair<string, string>> formatedHeaders, string name) => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
+    }
+
+    private static void AddText(FileStream fs, string value)
+    {
+        byte[] info = new UTF8Encoding(true).GetBytes(value);
+        fs.Write(info, 0, info.Length);
     }
 }
