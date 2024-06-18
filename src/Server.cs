@@ -56,15 +56,10 @@ internal class Program
 
             List<KeyValuePair<string, string>> formatedHeaders = [];
 
-            Console.Error.WriteLine("");
-
-            foreach (var header in headers)
-            {
-                Console.Error.WriteLine($"Header is : {header}");
-            }
-
             headers.ForEach(header =>
             {
+                Console.Error.WriteLine($"Header is : {header}");
+
                 if (!string.IsNullOrWhiteSpace(header))
                 {
                     formatedHeaders.Add(
