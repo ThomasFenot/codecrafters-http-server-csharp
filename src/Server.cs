@@ -56,20 +56,20 @@ internal class Program
 
             List<KeyValuePair<string, string>> formatedHeaders = [];
 
-            headers.ForEach(header =>
-            {
-                Console.Error.WriteLine($"Header is : {header}");
+            //headers.ForEach(header =>
+            //{
+            //    Console.Error.WriteLine($"Header is : {header}");
 
-                if (!string.IsNullOrWhiteSpace(header))
-                {
-                    formatedHeaders.Add(
-                    new KeyValuePair<string, string>(
-                        header.Split(":")[0],
-                        header.Split(":")[1]
-                        )
-                    );
-                }
-            });
+            //    if (!string.IsNullOrWhiteSpace(header))
+            //    {
+            //        formatedHeaders.Add(
+            //        new KeyValuePair<string, string>(
+            //            header.Split(":")[0],
+            //            header.Split(":")[1]
+            //            )
+            //        );
+            //    }
+            //});
 
             string userAgent = FindHeader(formatedHeaders, "User-Agent");
 
