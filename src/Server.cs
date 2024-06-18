@@ -53,7 +53,7 @@ internal class Program
 
             for (int i = 1; i < request.Length - 1; i++)
             {
-                if (!string.IsNullOrWhiteSpace(request[i]))
+                if (!string.IsNullOrWhiteSpace(request[i]) || !request[i].Contains(string.Empty))
                     headers.Add(request[i]);
             }
 
@@ -63,7 +63,7 @@ internal class Program
             {
                 Console.Error.WriteLine($"Header is : {header}");
 
-                if (!string.IsNullOrWhiteSpace(header))
+                if (!string.IsNullOrWhiteSpace(header) || !header.Contains(string.Empty))
                 {
                     formatedHeaders.Add(
                     new KeyValuePair<string, string>(
