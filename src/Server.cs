@@ -87,7 +87,11 @@ internal class Program
             else if (route.StartsWith("/files/"))
             {
                 var fileName = route.Split("/", 3)[2]; //Here it should be a file name
-               
+                var path = Environment.GetCommandLineArgs()[2];
+                var filePath = path + fileName; // ENABLE WHEN PROD
+
+                FileInfo file = new(filePath);
+                DirectoryInfo directory = new DirectoryInfo(path);
                 string contentLength;
 
                 switch (verb)
@@ -96,10 +100,9 @@ internal class Program
 
                         contentLength = FindHeader(formatedHeaders, "Content-Length");
                         var body = request[request.Length -1];
-                        FileInfo file = new(fileName);
 
-                        var xd = Environment.GetCommandLineArgs()[2];
-                        Console.Error.WriteLine("PATH : " + xd);
+                        if (!directory.Exists)
+                            directory.Create();
 
                         if (!file.Exists)
                         {
@@ -113,9 +116,6 @@ internal class Program
 
                         break;
                     case "GET":
-
-                        var path = Environment.GetCommandLineArgs()[2];
-                        var filePath = path + fileName; // ENABLE WHEN PROD
 
                         FileInfo fileWithPath = new(filePath);
                         if (!fileWithPath.Exists)
