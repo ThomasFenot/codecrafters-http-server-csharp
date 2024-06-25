@@ -1,3 +1,4 @@
+using codecrafters_http_server.Constants;
 using codecrafters_http_server.src;
 using System.Net;
 using System.Net.Sockets;
@@ -7,19 +8,27 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        const string CRLF = "\r\n";
+        string CRLF = Environment.NewLine;
 
-        //Status Line
-        const string OK_RESPONSE = $"HTTP/1.1 200 OK{CRLF}";
-        const string CREATED_RESPONSE = $"HTTP/1.1 201 Created{CRLF}";
-        const string NOT_FOUND_RESPONSE = $"HTTP/1.1 404 Not Found{CRLF}";
-        const string CONTENT_TYPE_TEXT = $"Content-Type: text/plain{CRLF}";
-        const string CONTENT_TYPE_FILE = $"Content-Type: application/octet-stream{CRLF}";
-        const string CONTENT_ENCONDING = $"Content-Encoding: gzip{CRLF}";
+        string HttpResponseHeader = $"HTTP/1.1 ";
+        string ContentTypeHeader = $"Content-Type: ";
+        string ContentEncodingHeader = $"Content-Encoding: ";
+
+        string OkResponse = HttpResponseHeader.FormatToHeader(StatusCodes.OK);
+        string CreatedResponse = HttpResponseHeader.FormatToHeader(StatusCodes.Created);
+        string NotFoundResponse = HttpResponseHeader.FormatToHeader(StatusCodes.NotFound);
+
+        string TextContentType = ContentTypeHeader.FormatToHeader(ContentTypes.Text);
+        string ApplicationContentType = ContentTypeHeader.FormatToHeader(ContentTypes.Application);
+
+        string GzipEncoding = ContentEncodingHeader.FormatToHeader(ValidEncodings.Gzip);
 
         // Uncomment this block to pass the first stage
         using TcpListener server = new(IPAddress.Any, 4221);
         server.Start();
+
+        var toto = ContentTypeHeader.FormatToHeader(ContentTypes.Application);
+
 
         while (true)
             await HandleRequest().ConfigureAwait(false);
@@ -77,15 +86,15 @@ internal class Program
             string? acceptEncoding = formatedHeaders.FindHeader("Accept-Encoding");
 
             if (route.Equals("/"))
-                response = OK_RESPONSE + CRLF;
+                response = OkResponse + CRLF;
             else if (route.StartsWith("/echo/"))
             {
                 var parameter = route.Split("/")[2];
                 contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
 
                 response = string.IsNullOrEmpty(acceptEncoding) ?
-                    OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + parameter :
-                    OK_RESPONSE + CONTENT_TYPE_TEXT + CONTENT_ENCONDING + contentLength + parameter;
+                    OkResponse + TextContentType + contentLength + parameter :
+                    OkResponse + TextContentType + GzipEncoding + contentLength + parameter;
 
             }
             else if (route.StartsWith("/files/"))
@@ -112,7 +121,7 @@ internal class Program
                             stream.AddText(body);
                         }
 
-                        response = CREATED_RESPONSE + CRLF;
+                        response = CreatedResponse + CRLF;
 
                         break;
                     case "GET":
@@ -120,7 +129,7 @@ internal class Program
                         FileInfo fileWithPath = new(filePath);
                         if (!fileWithPath.Exists)
                         {
-                            response = NOT_FOUND_RESPONSE + CRLF;
+                            response = NotFoundResponse + CRLF;
                             goto Send;
                         }
 
@@ -130,21 +139,21 @@ internal class Program
 
                         contents = contents.Trim() + CRLF;
 
-                        response = OK_RESPONSE + CONTENT_TYPE_FILE + contentLength + contents;
+                        response = OkResponse + ApplicationContentType + contentLength + contents;
 
                         break;
                     default:
-                        response = NOT_FOUND_RESPONSE + CRLF;
+                        response = NotFoundResponse + CRLF;
                         goto Send;
                 }
             }
             else if (route.Equals("/user-agent"))
             {
                 contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
-                response = OK_RESPONSE + CONTENT_TYPE_TEXT + contentLength + userAgent;
+                response = OkResponse + TextContentType + contentLength + userAgent;
             }
             else
-                response = NOT_FOUND_RESPONSE + CRLF;
+                response = NotFoundResponse + CRLF;
 
             Send:
             await socket.SendAsync(Encoding.ASCII.GetBytes(response));
