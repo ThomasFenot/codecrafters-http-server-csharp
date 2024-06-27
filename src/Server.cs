@@ -44,7 +44,7 @@ internal class Program
             // Convert received bytes to a string, removing null bytes
             string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
 
-            string[] request = requestMessage.Split(new[] { Controls.CRLF}, StringSplitOptions.RemoveEmptyEntries);
+            string[] request = requestMessage.Split(new[] { Controls.CRLF }, StringSplitOptions.RemoveEmptyEntries);
             string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             verb = cutRequest[0];
@@ -64,12 +64,12 @@ internal class Program
 
             headers.ForEach(header =>
             {
-                if (!string.IsNullOrWhiteSpace(header))
+                if (!string.IsNullOrWhiteSpace(header) || header.Contains(':'))
                 {
                     formatedHeaders.Add(
-                    new KeyValuePair<string, string>(
-                        header.Split(":")[0],
-                        header.Split(":")[1]
+                        new KeyValuePair<string, string>(
+                            header.Split(":")[0],
+                            header.Split(":")[1]
                         )
                     );
                 }
