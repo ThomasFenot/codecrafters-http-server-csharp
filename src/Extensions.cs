@@ -16,10 +16,4 @@ public static class Extensions
         byte[] info = new UTF8Encoding(true).GetBytes(value);
         fs.Write(info, 0, info.Length);
     }
-
-    public static List<string> ToList(this ValidEncodings encodings)
-    {
-        var toto = encodings.GetType().GetProperties();
-        return new List<string>();
-    }
 }
