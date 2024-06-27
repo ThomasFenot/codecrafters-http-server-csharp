@@ -106,7 +106,7 @@ internal class Program
 
                     foreach (var receivedEncoding in receivedEncodings)
                     {
-                        if (receivedEncoding == ValidEncodings.Values[0])
+                        if (receivedEncoding.Trim() == ValidEncodings.Values[0])
                         {
                             response = OkResponse + TextContentType + GzipEncoding + contentLength + parameter;
                             goto Send;
