@@ -2,5 +2,5 @@
 
 public static class ValidEncodings
 {
-    public const string Gzip = "gzip";
+    public static string[] Values = ["gzip"];
 }

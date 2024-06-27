@@ -19,7 +19,7 @@ internal class Program
         string TextContentType = ContentTypeHeader.FormatToHeader(ContentTypes.Text);
         string ApplicationContentType = ContentTypeHeader.FormatToHeader(ContentTypes.Application);
 
-        string GzipEncoding = ContentEncodingHeader.FormatToHeader(ValidEncodings.Gzip);
+        string GzipEncoding = ContentEncodingHeader.FormatToHeader(ValidEncodings.Values[0]);
 
         // Uncomment this block to pass the first stage
         using TcpListener server = new(IPAddress.Any, 4221);
@@ -85,9 +85,15 @@ internal class Program
                 var parameter = route.Split("/")[2] + Controls.CRLF;
                 contentLength = $"Content-Length: {parameter.Length}{Controls.CRLF}{Controls.CRLF}";
 
+
+
                 response = string.IsNullOrEmpty(acceptEncoding) ?
-                    OkResponse + TextContentType + contentLength + parameter :
-                    OkResponse + TextContentType + GzipEncoding + contentLength + parameter;
+                    OkResponse + TextContentType + contentLength + parameter
+                    :
+                    ValidEncodings.Values.Contains(acceptEncoding) ?
+                        OkResponse + TextContentType + GzipEncoding + contentLength + parameter
+                        :
+                        OkResponse + TextContentType;
 
             }
             else if (route.StartsWith("/files/"))
