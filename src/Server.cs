@@ -97,6 +97,7 @@ internal class Program
                 if (string.IsNullOrEmpty(acceptEncoding))
                 {
                     response = OkResponse + TextContentType + contentLength + parameter;
+                    goto Send;
                 }
 
                 if (acceptEncoding.Contains(','))
@@ -107,20 +108,12 @@ internal class Program
                     {
                         if (receivedEncoding == ValidEncodings.Values[0])
                         {
-                            response = OkResponse + TextContentType + GzipEncoding + contentLength + parameter
+                            response = OkResponse + TextContentType + GzipEncoding + contentLength + parameter;
                             goto Send;
-                        }
-                        else
-                        {
-                            response = OkResponse + TextContentType + Controls.CRLF;
                         }
                     }
                 }
-                else
-                {
-                    response = OkResponse + TextContentType + Controls.CRLF;
-                }
-
+                response = OkResponse + TextContentType + Controls.CRLF;
             }
             else if (route.StartsWith("/files/"))
             {
