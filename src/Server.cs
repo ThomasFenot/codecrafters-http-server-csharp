@@ -90,10 +90,9 @@ internal class Program
                 response = OkResponse + Controls.CRLF;
             else if (route.StartsWith("/echo/"))
             {
-                var parameter = route.Split("/")[2] + Controls.CRLF;
+                var parameter = route.Split("/")[2];
                 contentLength = $"Content-Length: {parameter.Length}{Controls.CRLF}{Controls.CRLF}";
-
-
+                parameter += Controls.CRLF;
 
                 response = string.IsNullOrEmpty(acceptEncoding) ?
                     OkResponse + TextContentType + contentLength + parameter
