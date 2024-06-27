@@ -55,7 +55,8 @@ internal class Program
 
             for (int i = 1; i < request.Length; i++)
             {
-                if (!string.IsNullOrWhiteSpace(request[i]))
+                Console.Error.WriteLine($"CurrentHeader is : {request[i]}");
+                if (!string.IsNullOrWhiteSpace(request[i]) || request[i].Contains('\0'))
                     headers.Add(request[i]);
             }
 
