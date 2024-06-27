@@ -102,7 +102,7 @@ internal class Program
 
                 if (acceptEncoding.Contains(','))
                 {
-                    var receivedEncodings = acceptEncoding.Split(":");
+                    var receivedEncodings = acceptEncoding.Split(",");
 
                     foreach (var receivedEncoding in receivedEncodings)
                     {
