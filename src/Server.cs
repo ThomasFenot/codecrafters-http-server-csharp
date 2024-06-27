@@ -162,6 +162,7 @@ internal class Program
                 response = NotFoundResponse + Controls.CRLF;
 
             Send:
+            Console.Error.WriteLine($"Sent response = {response}");
             await socket.SendAsync(Encoding.ASCII.GetBytes(response));
         }
     }
