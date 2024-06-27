@@ -113,6 +113,11 @@ internal class Program
                         }
                     }
                 }
+                else if (acceptEncoding == ValidEncodings.Values[0])
+                {
+                    response = OkResponse + TextContentType + GzipEncoding + contentLength + parameter;
+                    goto Send;
+                }
                 response = OkResponse + TextContentType + Controls.CRLF;
             }
             else if (route.StartsWith("/files/"))
