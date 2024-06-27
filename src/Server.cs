@@ -66,14 +66,19 @@ internal class Program
 
             headers.ForEach(header =>
             {
-                if (!string.IsNullOrWhiteSpace(header) || header.Contains(':'))
+                if (!string.IsNullOrWhiteSpace(header))
                 {
-                    formatedHeaders.Add(
-                        new KeyValuePair<string, string>(
-                            header.Split(":")[0],
-                            header.Split(":")[1]
-                        )
-                    );
+                    if (header.Contains(':'))
+                    {
+                        Console.Error.WriteLine($"Current header in for loop {header}");
+                        formatedHeaders.Add(
+                            new KeyValuePair<string, string>(
+                                header.Split(":")[0],
+                                header.Split(":")[1]
+                            )
+                        );
+                    }
+
                 }
             });
 
