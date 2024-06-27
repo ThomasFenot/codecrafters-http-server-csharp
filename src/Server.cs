@@ -93,7 +93,7 @@ internal class Program
                     ValidEncodings.Values.Contains(acceptEncoding) ?
                         OkResponse + TextContentType + GzipEncoding + contentLength + parameter
                         :
-                        OkResponse + TextContentType;
+                        OkResponse + TextContentType + Controls.CRLF;
 
             }
             else if (route.StartsWith("/files/"))
