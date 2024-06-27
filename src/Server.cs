@@ -8,7 +8,7 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        string CRLF = Environment.NewLine;
+        string CRLF = "\r\n";
 
         string HttpResponseHeader = $"HTTP/1.1 ";
         string ContentTypeHeader = $"Content-Type: ";
