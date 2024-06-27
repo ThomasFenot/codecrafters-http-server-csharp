@@ -8,8 +8,6 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        string CRLF = "\r\n";
-
         string HttpResponseHeader = $"HTTP/1.1 ";
         string ContentTypeHeader = $"Content-Type: ";
         string ContentEncodingHeader = $"Content-Encoding: ";
@@ -49,7 +47,7 @@ internal class Program
             // Convert received bytes to a string, removing null bytes
             string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
 
-            string[] request = requestMessage.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string[] request = requestMessage.Split(new[] { Controls.CRLF}, StringSplitOptions.RemoveEmptyEntries);
             string[] cutRequest = request[0].Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             verb = cutRequest[0];
@@ -86,11 +84,11 @@ internal class Program
             string? acceptEncoding = formatedHeaders.FindHeader("Accept-Encoding");
 
             if (route.Equals("/"))
-                response = OkResponse + CRLF;
+                response = OkResponse + Controls.CRLF;
             else if (route.StartsWith("/echo/"))
             {
-                var parameter = route.Split("/")[2] + CRLF;
-                contentLength = $"Content-Length: {parameter.Length}{CRLF}{CRLF}";
+                var parameter = route.Split("/")[2] + Controls.CRLF;
+                contentLength = $"Content-Length: {parameter.Length}{Controls.CRLF}{Controls.CRLF}";
 
                 response = string.IsNullOrEmpty(acceptEncoding) ?
                     OkResponse + TextContentType + contentLength + parameter :
@@ -121,7 +119,7 @@ internal class Program
                             stream.AddText(body);
                         }
 
-                        response = CreatedResponse + CRLF;
+                        response = CreatedResponse + Controls.CRLF;
 
                         break;
                     case "GET":
@@ -129,31 +127,31 @@ internal class Program
                         FileInfo fileWithPath = new(filePath);
                         if (!fileWithPath.Exists)
                         {
-                            response = NotFoundResponse + CRLF;
+                            response = NotFoundResponse + Controls.CRLF;
                             goto Send;
                         }
 
                         string contents = File.ReadAllText(filePath);
 
-                        contentLength = $"Content-Length: {contents.Length}{CRLF}{CRLF}";
+                        contentLength = $"Content-Length: {contents.Length}{Controls.CRLF}{Controls.CRLF}";
 
-                        contents = contents.Trim() + CRLF;
+                        contents = contents.Trim() + Controls.CRLF;
 
                         response = OkResponse + ApplicationContentType + contentLength + contents;
 
                         break;
                     default:
-                        response = NotFoundResponse + CRLF;
+                        response = NotFoundResponse + Controls.CRLF;
                         goto Send;
                 }
             }
             else if (route.Equals("/user-agent"))
             {
-                contentLength = $"Content-Length: {userAgent.Length}{CRLF}{CRLF}";
+                contentLength = $"Content-Length: {userAgent.Length}{Controls.CRLF}{Controls.CRLF}";
                 response = OkResponse + TextContentType + contentLength + userAgent;
             }
             else
-                response = NotFoundResponse + CRLF;
+                response = NotFoundResponse + Controls.CRLF;
 
             Send:
             await socket.SendAsync(Encoding.ASCII.GetBytes(response));
