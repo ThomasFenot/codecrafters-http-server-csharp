@@ -25,9 +25,6 @@ internal class Program
         using TcpListener server = new(IPAddress.Any, 4221);
         server.Start();
 
-        var toto = ContentTypeHeader.FormatToHeader(ContentTypes.Application);
-
-
         while (true)
             await HandleRequest().ConfigureAwait(false);
 
@@ -56,7 +53,7 @@ internal class Program
 
             List<string> headers = [];
 
-            for (int i = 1; i < request.Length - 1; i++)
+            for (int i = 1; i < request.Length; i++)
             {
                 if (!string.IsNullOrWhiteSpace(request[i]))
                     headers.Add(request[i]);
@@ -66,8 +63,6 @@ internal class Program
 
             headers.ForEach(header =>
             {
-                Console.Error.WriteLine($"Header is : {header}");
-
                 if (!string.IsNullOrWhiteSpace(header))
                 {
                     formatedHeaders.Add(
