@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using codecrafters_http_server.Constants;
+using System.Text;
 
 namespace codecrafters_http_server.src;
 
@@ -8,7 +9,7 @@ public static class Extensions
        => formatedHeaders.FirstOrDefault(header => header.Key == name).Value?.Trim();
 
     public static string FormatToHeader(this string header, string value)
-      => $"{header + value + Environment.NewLine}";
+      => $"{header + value + Controls.CRLF}";
 
     public static void AddText(this FileStream fs, string value)
     {
