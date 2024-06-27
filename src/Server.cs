@@ -53,10 +53,10 @@ internal class Program
 
             List<string> headers = [];
 
-            for (int i = 1; i < request.Length; i++)
+            for (int i = 1; i < request.Length - 1; i++)
             {
                 Console.Error.WriteLine($"CurrentHeader is : {request[i]}");
-                if (!string.IsNullOrWhiteSpace(request[i]) || request[i].Contains('\0'))
+                if (!string.IsNullOrWhiteSpace(request[i]))
                     headers.Add(request[i]);
             }
 
