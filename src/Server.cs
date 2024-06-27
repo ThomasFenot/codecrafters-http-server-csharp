@@ -94,13 +94,32 @@ internal class Program
                 contentLength = $"Content-Length: {parameter.Length}{Controls.CRLF}{Controls.CRLF}";
                 parameter += Controls.CRLF;
 
-                response = string.IsNullOrEmpty(acceptEncoding) ?
-                    OkResponse + TextContentType + contentLength + parameter
-                    :
-                    ValidEncodings.Values.Contains(acceptEncoding) ?
-                        OkResponse + TextContentType + GzipEncoding + contentLength + parameter
-                        :
-                        OkResponse + TextContentType + Controls.CRLF;
+                if (string.IsNullOrEmpty(acceptEncoding))
+                {
+                    response = OkResponse + TextContentType + contentLength + parameter;
+                }
+
+                if (acceptEncoding.Contains(','))
+                {
+                    var receivedEncodings = acceptEncoding.Split(":");
+
+                    foreach (var receivedEncoding in receivedEncodings)
+                    {
+                        if (receivedEncoding == ValidEncodings.Values[0])
+                        {
+                            response = OkResponse + TextContentType + GzipEncoding + contentLength + parameter
+                            goto Send;
+                        }
+                        else
+                        {
+                            response = OkResponse + TextContentType + Controls.CRLF;
+                        }
+                    }
+                }
+                else
+                {
+                    response = OkResponse + TextContentType + Controls.CRLF;
+                }
 
             }
             else if (route.StartsWith("/files/"))
