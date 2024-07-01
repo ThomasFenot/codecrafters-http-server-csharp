@@ -1,5 +1,6 @@
 using codecrafters_http_server.Constants;
 using codecrafters_http_server.src;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -38,8 +39,8 @@ internal class Program
             string route;
             string httpVersion;
 
-            using var socket = await server.AcceptSocketAsync();
-            int bytesRead = await socket.ReceiveAsync(buffer);
+            using var socket = await server.AcceptSocketAsync().ConfigureAwait(false);
+            int bytesRead = await socket.ReceiveAsync(buffer).ConfigureAwait(false);
 
             // Convert received bytes to a string, removing null bytes
             string requestMessage = Encoding.ASCII.GetString(buffer).Replace("\0", "");
@@ -55,9 +56,6 @@ internal class Program
 
             for (int i = 1; i < request.Length; i++)
             {
-                Console.Error.WriteLine($"Curr i is : {i}");
-                Console.Error.WriteLine($"r l  : {request.Length}");
-                Console.Error.WriteLine($"CurrentHeader is : {request[i]}");
                 if (!string.IsNullOrWhiteSpace(request[i]))
                     headers.Add(request[i]);
             }
@@ -70,7 +68,6 @@ internal class Program
                 {
                     if (header.Contains(':'))
                     {
-                        Console.Error.WriteLine($"Current header in for loop {header}");
                         formatedHeaders.Add(
                             new KeyValuePair<string, string>(
                                 header.Split(":")[0],
@@ -78,7 +75,6 @@ internal class Program
                             )
                         );
                     }
-
                 }
             });
 
@@ -179,8 +175,7 @@ internal class Program
                 response = NotFoundResponse + Controls.CRLF;
 
             Send:
-            Console.Error.WriteLine($"Sent response = {response}");
-            await socket.SendAsync(Encoding.ASCII.GetBytes(response));
+            await socket.SendAsync(Encoding.ASCII.GetBytes(response)).ConfigureAwait(false);
         }
     }
 }
